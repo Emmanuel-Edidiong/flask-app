@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Design Tool - Interior Design AI{% endblock %}
+
+{% block head %}
+<style>
+    .upload-area {
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 40px;
+        text-align: center;
+        transition: border-color 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-area:hover {
+        border-color: #007bff;
+    }
+    
+    .upload-area.dragover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+    
+    .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .loading-spinner {
+        display: none;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-magic me-2"></i>AI Interior Design Tool
+            </h2>
+            <p class="text-center text-muted mb-5">
+                Upload an image of your room and customize your design preferences
+            </p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Image Upload Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-upload me-2"></i>Upload Room Image</h5>
+                </div>
+                <div class="card-body">
+                    <div id="uploadArea" class="upload-area">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <h5>Drop your image here</h5>
+                        <p class="text-muted">or click to browse</p>
+                        <input type="file" id="imageInput" class="d-none" accept="image/*">
+                    </div>
+                    
+                    <div id="imagePreview" class="mt-3 text-center" style="display: none;">
+                        <img id="previewImg" class="preview-image" alt="Preview">
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearUpload()">
+                                <i class="fas fa-trash me-1"></i>Remove
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="uploadProgress" class="mt-3" style="display: none;">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Design Options Section -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-cog me-2"></i>Design Preferences</h5>
+                </div>
+                <div class="card-body">
+                    <form id="designForm">
+                        <!-- Room Type -->
+                        <div class="form-section">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-home me-1"></i>Room Type
+                            </label>
+                            <select class="form-select" name="room_type" required>
+                                {% for room_type in room_types %}
+                                <option value="{{ room_type }}">{{ room_type.title() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Design Style -->
+                        <div class="form-section">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-paint-brush me-1"></i>Design Style
+                            </label>
+                            <select class="form-select" name="design_style" required>
+                                {% for style in design_styles %}
+                                <option value="{{ style }}">{{ style.title() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Color Palette -->
+                        <div class="form-section">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-palette me-1"></i>Color Palette
+                            </label>
+                            <select class="form-select" name="color_palette">
+                                {% for palette in color_palettes %}
+                                <option value="{{ palette }}">{{ palette.title() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Furnished Options -->
+                        <div class="form-section">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-couch me-1"></i>Furniture Preference
+                            </label>
+                            <div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="furnished" id="furnished" value="furnished" checked>
+                                    <label class="form-check-label" for="furnished">
+                                        Furnished (with furniture and decor)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="furnished" id="unfurnished" value="unfurnished">
+                                    <label class="form-check-label" for="unfurnished">
+                                        Minimal (focus on architecture)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- User Prompt -->
+                        <div class="form-section">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-comment me-1"></i>Additional Instructions (Optional)
+                            </label>
+                            <textarea class="form-control" name="user_prompt" rows="3" 
+                                    placeholder="Describe any specific requirements or preferences..."></textarea>
+                            <div class="form-text">
+                                Example: "Add plants", "Make it cozy", "Include a reading corner"
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="generateBtn" disabled>
+                                <i class="fas fa-magic me-2"></i>Generate Design
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Processing Status -->
+    <div id="processingStatus" class="row mt-4" style="display: none;">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h5>AI is working on your design...</h5>
+                        <p class="text-muted">This may take 30-60 seconds. Please don't refresh the page.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let uploadedFile = null;
+
+// Upload area functionality
+const uploadArea = document.getElementById('uploadArea');
+const imageInput = document.getElementById('imageInput');
+const imagePreview = document.getElementById('imagePreview');
+const previewImg = document.getElementById('previewImg');
+const generateBtn = document.getElementById('generateBtn');
+const designForm = document.getElementById('designForm');
+
+// Click to upload
+uploadArea.addEventListener('click', () => {
+    imageInput.click();
+});
+
+// Drag and drop
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFileSelect(files[0]);
+    }
+});
+
+// File input change
+imageInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+function handleFileSelect(file) {
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        return;
+    }
+    
+    if (file.size > 16 * 1024 * 1024) { // 16MB
+        alert('File size too large. Please select an image under 16MB.');
+        return;
+    }
+    
+    uploadedFile = file;
+    
+    // Preview the image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        imagePreview.style.display = 'block';
+        uploadArea.style.display = 'none';
+        generateBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+    
+    // Upload the file
+    uploadFile(file);
+}
+
+function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const uploadProgress = document.getElementById('uploadProgress');
+    uploadProgress.style.display = 'block';
+    
+    fetch('{{ url_for("design.upload_image") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        uploadProgress.style.display = 'none';
+        if (!data.success) {
+            alert('Upload failed: ' + data.error);
+            clearUpload();
+        }
+    })
+    .catch(error => {
+        uploadProgress.style.display = 'none';
+        alert('Upload failed: ' + error);
+        clearUpload();
+    });
+}
+
+function clearUpload() {
+    uploadedFile = null;
+    imagePreview.style.display = 'none';
+    uploadArea.style.display = 'block';
+    imageInput.value = '';
+    generateBtn.disabled = true;
+}
+
+// Form submission
+designForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    if (!uploadedFile) {
+        alert('Please upload an image first.');
+        return;
+    }
+    
+    const formData = new FormData(designForm);
+    
+    // Show processing status
+    document.getElementById('processingStatus').style.display = 'block';
+    document.querySelector('.loading-spinner').style.display = 'block';
+    generateBtn.disabled = true;
+    
+    fetch('{{ url_for("design.redesign_image") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '{{ url_for("design.view_result") }}';
+        } else {
+            alert('Design generation failed: ' + data.error);
+            document.getElementById('processingStatus').style.display = 'none';
+            generateBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        alert('An error occurred: ' + error);
+        document.getElementById('processingStatus').style.display = 'none';
+        generateBtn.disabled = false;
+    });
+});
+</script>
+{% endblock %}

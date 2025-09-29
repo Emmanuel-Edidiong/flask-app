@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery - Interior Design AI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h2><i class="fas fa-images me-2"></i>Design Gallery</h2>
+            <p class="text-muted">Your AI-generated interior designs</p>
+        </div>
+    </div>
+    
+    {% if results %}
+        <div class="row">
+            {% for result in results %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <img src="{{ url_for('static', filename='uploads/' + result.result_filename) }}" 
+                             class="img-fluid rounded mb-3" alt="Design result" style="max-height: 200px;">
+                        
+                        <h6>{{ result.room_type.title() }} - {{ result.design_style.title() }}</h6>
+                        <p class="text-muted small">{{ result.color_palette.title() }} palette</p>
+                        
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('static', filename='uploads/' + result.result_filename) }}" 
+                               target="_blank" class="btn btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('static', filename='uploads/' + result.result_filename) }}" 
+                               download class="btn btn-outline-success">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-images fa-4x text-muted mb-4"></i>
+                        <h4>No designs yet</h4>
+                        <p class="text-muted mb-4">Create your first AI-generated interior design!</p>
+                        <a href="{{ url_for('design.design_home') }}" class="btn btn-primary">
+                            <i class="fas fa-magic me-2"></i>Start Designing
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

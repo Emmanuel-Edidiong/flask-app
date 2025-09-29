@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}About - Interior Design AI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 text-center mb-5">
+            <h1>About Interior Design AI</h1>
+            <p class="lead text-muted">Transforming spaces with artificial intelligence</p>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h3>What We Do</h3>
+                    <p>
+                        Interior Design AI is a cutting-edge web application that uses OpenAI's advanced image editing 
+                        technology to transform your living spaces. Simply upload a photo of any room, and our AI will 
+                        redesign it according to your style preferences.
+                    </p>
+                    
+                    <h3>How It Works</h3>
+                    <ol>
+                        <li><strong>Upload:</strong> Take a photo of your room and upload it to our platform</li>
+                        <li><strong>Customize:</strong> Choose your preferred room type, design style, color palette, and furniture options</li>
+                        <li><strong>Generate:</strong> Our AI processes your image and preferences to create a stunning redesign</li>
+                        <li><strong>Download:</strong> Get your professionally designed room image in high quality</li>
+                    </ol>
+                    
+                    <h3>Technology</h3>
+                    <p>
+                        Built with Flask and powered by OpenAI's DALL-E image editing API, our platform delivers 
+                        photorealistic interior design transformations that maintain the structural integrity of your space 
+                        while completely reimagining its aesthetic appeal.
+                    </p>
+                    
+                    <h3>Design Options</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Room Types</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-couch text-primary me-2"></i>Living Room</li>
+                                <li><i class="fas fa-bed text-primary me-2"></i>Bedroom</li>
+                                <li><i class="fas fa-utensils text-primary me-2"></i>Kitchen</li>
+                                <li><i class="fas fa-bath text-primary me-2"></i>Bathroom</li>
+                                <li>And 6 more room types...</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Design Styles</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-paint-brush text-primary me-2"></i>Modern</li>
+                                <li><i class="fas fa-paint-brush text-primary me-2"></i>Scandinavian</li>
+                                <li><i class="fas fa-paint-brush text-primary me-2"></i>Industrial</li>
+                                <li><i class="fas fa-paint-brush text-primary me-2"></i>Bohemian</li>
+                                <li>And 10 more design styles...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('main.home') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-home me-2"></i>Get Started
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
